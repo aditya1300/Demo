@@ -1,0 +1,228 @@
+CREATE OR REPLACE PROCEDURE `insuretec_Transform_Data.proc_transformation_Complaint`()
+BEGIN
+ 
+  -- COMPLAINT DATA LOGIC
+ 
+  -- TRANSFORMED TABLE NAMING CONVENTION LOGIC
+  DECLARE raw_table_name STRING;
+  DECLARE transformed_table_name STRING;
+  DECLARE column_str STRING;
+ 
+  SET raw_table_name = 'insuretec_Raw_Data.raw_complaint';
+  SET transformed_table_name = 'insuretec_Transform_Data.complaint_mapping_data';
+  SET column_str = '';
+ 
+  -- MAIN LOGIC
+  FOR mapping_row IN (
+      SELECT * FROM insuretec_raw_to_transform_column_mapping.complaint_column_name_mapping_table
+  ) DO
+      SET column_str = CONCAT(column_str, '"', mapping_row.client_raw_column, '" AS `', mapping_row.predoole_master, '`,');
+  END FOR;
+ 
+  -- REMOVE TRAILING COMMA
+  SET column_str = SUBSTR(column_str, 1, LENGTH(column_str) - 1);
+ 
+  -- EXECUTE STATEMENT TO CREATE MAPPING TABLE
+  EXECUTE IMMEDIATE CONCAT('CREATE TABLE ', transformed_table_name, ' AS SELECT ', column_str, 'FROM ', raw_table_name);
+ 
+  -- IF ANY COLUMNS ARE ADDED IN MAIN DATA THEN WE NEED TO ADD THEM IN BELOW CAST PROCESS
+  -- MAIN LOGIC
+  IF ((
+      SELECT COUNT(*)
+      FROM insuretec_Transform_Data.INFORMATION_SCHEMA.TABLES
+      WHERE table_name = 'Complaint_Transformed_Data') = 0)
+      THEN
+      CREATE OR REPLACE TABLE `insuretec_Transform_Data.Complaint_Transformed_Data`
+      AS
+      SELECT
+            SAFE_CAST(Service_Number AS INT64) AS Service_Number,
+            SAFE_CAST(Tranno AS INT64) AS Tranno,
+            SAFE_CAST(IRDA_Token_Number AS STRING) AS IRDA_Token_Number,
+            SAFE_CAST(Entity_Complaint_Ref_Number AS INT64) AS Entity_Complaint_Ref_Number,
+            SAFE_CAST(Complaint_Status_Id AS STRING) AS Complaint_Status_Id,
+            SAFE_CAST(Status_Change_Date AS DATE) AS Status_Change_Date,
+            SAFE_CAST(Status_Change_Time AS TIME) AS Status_Change_Time,
+            SAFE_CAST(Insurance_Type_Id AS INT64) AS Insurance_Type_Id,
+            SAFE_CAST(Policy_Type_Id AS STRING) AS Policy_Type_Id,
+            SAFE_CAST(Complaint_Type_Id AS STRING) AS Complaint_Type_Id,
+            SAFE_CAST(Complaint_Description_Id AS STRING) AS Complaint_Description_Id,
+            SAFE_CAST(Complaint_Details AS STRING) AS Complaint_Details,
+            SAFE_CAST(Source_Of_Complaint AS STRING) AS Source_Of_Complaint,
+            SAFE_CAST(Complaint_Date AS STRING) AS Complaint_Date,
+            SAFE_CAST(Complaint_Receipt_Date AS STRING) AS Complaint_Receipt_Date,
+            SAFE_CAST(Claim_Received_Amount AS STRING) AS Claim_Received_Amount,
+            SAFE_CAST(Claim_Payment_Date AS STRING) AS Claim_Payment_Date,
+            SAFE_CAST(Claim_Payment_Cheque_Date AS STRING) AS Claim_Payment_Cheque_Date,
+            SAFE_CAST(Claim_Payment_Cheque_Number AS STRING) AS Claim_Payment_Cheque_Number,
+            SAFE_CAST(Date_Of_Honoring_Service AS STRING) AS Date_Of_Honoring_Service,
+            SAFE_CAST(Insurer_Resolution_Letter_date AS STRING) AS Insurer_Resolution_Letter_date,
+            SAFE_CAST(Type_of_disposal AS STRING) AS Type_of_disposal,
+            SAFE_CAST(Claim_Clsr_Additional_Info AS STRING) AS Claim_Clsr_Additional_Info,
+            SAFE_CAST(Others_Clsr_Additional_Info AS STRING) AS Others_Clsr_Additional_Info,
+            SAFE_CAST(Is_Complainant_Informed AS STRING) AS Is_Complainant_Informed,
+            SAFE_CAST(Remarks AS STRING) AS Remarks,
+            SAFE_CAST(UpdatedBy AS STRING) AS UpdatedBy,
+            SAFE_CAST(Complaint_Date1 AS TIMESTAMP) AS Complaint_Date1,
+            SAFE_CAST(Complaint_Receipt_Date1 AS TIMESTAMP) AS Complaint_Receipt_Date1,
+            SAFE_CAST(Claim_Payment_Date1 AS DATE) AS Claim_Payment_Date1,
+            SAFE_CAST(Claim_Payment_Cheque_Date1 AS DATE) AS Claim_Payment_Cheque_Date1,
+            SAFE_CAST(Insurer_Resolution_Letter_date1 AS DATE) AS Insurer_Resolution_Letter_date1,
+            SAFE_CAST(Date_Of_Honoring_Service1 AS DATE) AS Date_Of_Honoring_Service1,
+            SAFE_CAST(Channel AS STRING) AS Channel
+ 
+        FROM insuretec_Transform_Data.complaint_mapping_data
+        GROUP BY
+ 
+          Service_Number,
+          Tranno,
+          IRDA_Token_Number,
+          Entity_Complaint_Ref_Number,
+          Complaint_Status_Id,
+          Status_Change_Date,
+          Status_Change_Time,
+          Insurance_Type_Id,
+          Policy_Type_Id,
+          Complaint_Type_Id,
+          Complaint_Description_Id,
+          Complaint_Details,
+          Source_Of_Complaint,
+          Complaint_Date,
+          Complaint_Receipt_Date,
+          Claim_Received_Amount,
+          Claim_Payment_Date,
+          Claim_Payment_Cheque_Date,
+          Claim_Payment_Cheque_Number,
+          Date_Of_Honoring_Service,
+          Insurer_Resolution_Letter_date,
+          Type_of_disposal,
+          Claim_Clsr_Additional_Info,
+          Others_Clsr_Additional_Info,
+          Is_Complainant_Informed,
+          Remarks,
+          UpdatedBy,
+          Complaint_Date1,
+          Complaint_Receipt_Date1,
+          Claim_Payment_Date1,
+          Claim_Payment_Cheque_Date1,
+          Insurer_Resolution_Letter_date1,
+          Date_Of_Honoring_Service1,
+          Channel;
+ 
+  ELSE
+      -- ELSE STATEMENT WITH INSERTION DATA PROCESS STATEMENT
+      INSERT INTO `insuretec_Transform_Data.Complaint_Transformed_Data` (
+          Service_Number,
+          Tranno,
+          IRDA_Token_Number,
+          Entity_Complaint_Ref_Number,
+          Complaint_Status_Id,
+          Status_Change_Date,
+          Status_Change_Time,
+          Insurance_Type_Id,
+          Policy_Type_Id,
+          Complaint_Type_Id,
+          Complaint_Description_Id,
+          Complaint_Details,
+          Source_Of_Complaint,
+          Complaint_Date,
+          Complaint_Receipt_Date,
+          Claim_Received_Amount,
+          Claim_Payment_Date,
+          Claim_Payment_Cheque_Date,
+          Claim_Payment_Cheque_Number,
+          Date_Of_Honoring_Service,
+          Insurer_Resolution_Letter_date,
+          Type_of_disposal,
+          Claim_Clsr_Additional_Info,
+          Others_Clsr_Additional_Info,
+          Is_Complainant_Informed,
+          Remarks,
+          UpdatedBy,
+          Complaint_Date1,
+          Complaint_Receipt_Date1,
+          Claim_Payment_Date1,
+          Claim_Payment_Cheque_Date1,
+          Insurer_Resolution_Letter_date1,
+          Date_Of_Honoring_Service1,
+          Channel
+      )
+      SELECT
+            SAFE_CAST(Service_Number AS INT64) AS Service_Number,
+            SAFE_CAST(Tranno AS INT64) AS Tranno,
+            SAFE_CAST(IRDA_Token_Number AS STRING) AS IRDA_Token_Number,
+            SAFE_CAST(Entity_Complaint_Ref_Number AS INT64) AS Entity_Complaint_Ref_Number,
+            SAFE_CAST(Complaint_Status_Id AS STRING) AS Complaint_Status_Id,
+            SAFE_CAST(Status_Change_Date AS DATE) AS Status_Change_Date,
+            SAFE_CAST(Status_Change_Time AS TIME) AS Status_Change_Time,
+            SAFE_CAST(Insurance_Type_Id AS INT64) AS Insurance_Type_Id,
+            SAFE_CAST(Policy_Type_Id AS STRING) AS Policy_Type_Id,
+            SAFE_CAST(Complaint_Type_Id AS STRING) AS Complaint_Type_Id,
+            SAFE_CAST(Complaint_Description_Id AS STRING) AS Complaint_Description_Id,
+            SAFE_CAST(Complaint_Details AS STRING) AS Complaint_Details,
+            SAFE_CAST(Source_Of_Complaint AS STRING) AS Source_Of_Complaint,
+            SAFE_CAST(Complaint_Date AS STRING) AS Complaint_Date,
+            SAFE_CAST(Complaint_Receipt_Date AS STRING) AS Complaint_Receipt_Date,
+            SAFE_CAST(Claim_Received_Amount AS STRING) AS Claim_Received_Amount,
+            SAFE_CAST(Claim_Payment_Date AS STRING) AS Claim_Payment_Date,
+            SAFE_CAST(Claim_Payment_Cheque_Date AS STRING) AS Claim_Payment_Cheque_Date,
+            SAFE_CAST(Claim_Payment_Cheque_Number AS STRING) AS Claim_Payment_Cheque_Number,
+            SAFE_CAST(Date_Of_Honoring_Service AS STRING) AS Date_Of_Honoring_Service,
+            SAFE_CAST(Insurer_Resolution_Letter_date AS STRING) AS Insurer_Resolution_Letter_date,
+            SAFE_CAST(Type_of_disposal AS STRING) AS Type_of_disposal,
+            SAFE_CAST(Claim_Clsr_Additional_Info AS STRING) AS Claim_Clsr_Additional_Info,
+            SAFE_CAST(Others_Clsr_Additional_Info AS STRING) AS Others_Clsr_Additional_Info,
+            SAFE_CAST(Is_Complainant_Informed AS STRING) AS Is_Complainant_Informed,
+            SAFE_CAST(Remarks AS STRING) AS Remarks,
+            SAFE_CAST(UpdatedBy AS STRING) AS UpdatedBy,
+            SAFE_CAST(Complaint_Date1 AS TIMESTAMP) AS Complaint_Date1,
+            SAFE_CAST(Complaint_Receipt_Date1 AS TIMESTAMP) AS Complaint_Receipt_Date1,
+            SAFE_CAST(Claim_Payment_Date1 AS DATE) AS Claim_Payment_Date1,
+            SAFE_CAST(Claim_Payment_Cheque_Date1 AS DATE) AS Claim_Payment_Cheque_Date1,
+            SAFE_CAST(Insurer_Resolution_Letter_date1 AS DATE) AS Insurer_Resolution_Letter_date1,
+            SAFE_CAST(Date_Of_Honoring_Service1 AS DATE) AS Date_Of_Honoring_Service1,
+            SAFE_CAST(Channel AS STRING) AS Channel
+ 
+      FROM `insuretec_Transform_Data.complaint_mapping_data`
+      GROUP BY
+ 
+          Service_Number,
+          Tranno,
+          IRDA_Token_Number,
+          Entity_Complaint_Ref_Number,
+          Complaint_Status_Id,
+          Status_Change_Date,
+          Status_Change_Time,
+          Insurance_Type_Id,
+          Policy_Type_Id,
+          Complaint_Type_Id,
+          Complaint_Description_Id,
+          Complaint_Details,
+          Source_Of_Complaint,
+          Complaint_Date,
+          Complaint_Receipt_Date,
+          Claim_Received_Amount,
+          Claim_Payment_Date,
+          Claim_Payment_Cheque_Date,
+          Claim_Payment_Cheque_Number,
+          Date_Of_Honoring_Service,
+          Insurer_Resolution_Letter_date,
+          Type_of_disposal,
+          Claim_Clsr_Additional_Info,
+          Others_Clsr_Additional_Info,
+          Is_Complainant_Informed,
+          Remarks,
+          UpdatedBy,
+          Complaint_Date1,
+          Complaint_Receipt_Date1,
+          Claim_Payment_Date1,
+          Claim_Payment_Cheque_Date1,
+          Insurer_Resolution_Letter_date1,
+          Date_Of_Honoring_Service1,
+          Channel;
+  END IF;
+ 
+  -- DROP STATEMENT
+  -- EXECUTE STATEMENT FOR DROPPING MAPPING TABLE
+  EXECUTE IMMEDIATE CONCAT('DROP TABLE IF EXISTS ', transformed_table_name);
+ 
+END;

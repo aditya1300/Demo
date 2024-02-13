@@ -1,0 +1,401 @@
+CREATE OR REPLACE PROCEDURE `insuretec_Transform_Data.proc_transformation_premium`()
+BEGIN
+    -- VARIABLE DECLARATION
+  DECLARE column_str STRING;
+  DECLARE transformed_table_name STRING;
+  DECLARE raw_table_name STRING;
+ 
+  -- TRANSFORMATED TABLE NAMING CONVENTION LOGIC
+  SET raw_table_name = 'insuretec_Raw_Data.raw_premium';
+  SET transformed_table_name = 'insuretec_Transform_Data.premium_mapping_data';
+  SET column_str = '';
+ 
+  -- MAIN LOGIC
+  FOR mapping_row IN (
+      SELECT * FROM insuretec_raw_to_transform_column_mapping.premium_column_name_mapping_table
+ 
+  ) DO
+    SET column_str = CONCAT(column_str, '"', mapping_row.client_raw_column, '" AS `', mapping_row.predoole_master, '`,');
+  END FOR;
+ 
+  -- REMOVE TRAILING COMMA
+  SET column_str = SUBSTR(column_str, 1, LENGTH(column_str) - 1);
+ 
+  -- EXECUTE STATEMENT TO CREATE MAPPING TABLE
+  EXECUTE IMMEDIATE CONCAT('CREATE TABLE ', transformed_table_name, ' AS SELECT ', column_str, 'FROM ', raw_table_name);
+ 
+  -- IF ANY COLUMNS ARE ADDED IN MAIN DATA THEN WE NEED TO ADD THEM IN BELOW CAST PROCESS
+  IF ((
+      SELECT count(*)
+      FROM insuretec_Transform_Data.INFORMATION_SCHEMA.TABLES
+      WHERE table_name = 'Premium_Transformed_Data'
+  ) = 0) THEN
+    CREATE TABLE insuretec_Transform_Data.Premium_Transformed_Data AS
+    SELECT
+          SAFE_CAST(Policy_No AS STRING) AS Policy_No,
+    SAFE_CAST(Product_Name AS STRING) AS Product_Name,
+    SAFE_CAST(Product_Code AS STRING) AS Product_Code,
+    SAFE_CAST(Premium AS FLOAT64) AS Premium,
+    SAFE_CAST(MotorOD_Premium AS FLOAT64) AS MotorOD_Premium,
+    SAFE_CAST(MotorTP_Premium AS FLOAT64) AS MotorTP_Premium,
+    SAFE_CAST(Sum_Insured AS FLOAT64) AS Sum_Insured,
+    SAFE_CAST(Policy_Start_Date AS DATE) AS Policy_Start_Date,
+    SAFE_CAST(Policy_End_Date AS DATE) AS Policy_End_Date,
+    SAFE_CAST(Transaction_Date AS DATE) AS Transaction_Date,
+    SAFE_CAST(MainChannel AS STRING) AS MainChannel,
+    SAFE_CAST(No_of_Lives AS INT64) AS No_of_Lives,
+    SAFE_CAST(Customer_Pincode AS INT64) AS Customer_Pincode,
+    SAFE_CAST(State AS STRING) AS State,
+    SAFE_CAST(Endorsement_Reason AS STRING) AS Endorsement_Reason,
+    SAFE_CAST(Endorsement_Type AS STRING) AS Endorsement_Type,
+    SAFE_CAST(Transaction_Type AS STRING) AS Transaction_Type,
+    SAFE_CAST(Rural_flag AS STRING) AS Rural_flag,
+    SAFE_CAST(Rural_Social_Flag AS STRING) AS Rural_Social_Flag,
+    SAFE_CAST(DigitalFlag AS STRING) AS DigitalFlag,
+    SAFE_CAST(Month_year AS STRING) AS Month_year,
+    SAFE_CAST(Year AS INT64) AS Year,
+    SAFE_CAST(Policy_Count AS INT64) AS Policy_Count,
+    SAFE_CAST(Rural_Policy_Count AS INT64) AS Rural_Policy_Count,
+    SAFE_CAST(Rural_Premium AS FLOAT64) AS Rural_Premium,
+    SAFE_CAST(Social_Policy_Count AS INT64) AS Social_Policy_Count,
+    SAFE_CAST(Social_Premium AS FLOAT64) AS Social_Premium,
+    SAFE_CAST(Digital_Policy_Count AS INT64) AS Digital_Policy_Count,
+    SAFE_CAST(Digital_Policy_Premium AS FLOAT64) AS Digital_Policy_Premium,
+    SAFE_CAST(no_of_district AS INT64) AS no_of_district,
+    SAFE_CAST(Hospital_Type AS STRING) AS Hospital_Type,
+    SAFE_CAST(`Insurer Name` AS STRING) AS `Insurer Name`,
+    SAFE_CAST(`Type of Insurer` AS STRING) AS `Type of Insurer`,
+    SAFE_CAST('Insured Type' AS STRING) AS `Insured Type`,
+    SAFE_CAST(Payment_Type AS STRING) AS Payment_Type,
+    SAFE_CAST(District AS STRING) AS District,
+    SAFE_CAST(Type_of_Business AS STRING) AS Type_of_Business,
+    SAFE_CAST(Policy_status AS STRING) AS Policy_status,
+    SAFE_CAST(TPPD_Statutory_Cover_only AS STRING) AS TPPD_Statutory_Cover_only,
+    SAFE_CAST(AntiTheft AS STRING) AS AntiTheft,
+    SAFE_CAST(AutoAssociation AS STRING) AS AutoAssociation,
+    SAFE_CAST(Own_Premises AS STRING) AS Own_Premises,
+    SAFE_CAST(Spl_Design AS STRING) AS Spl_Design,
+    SAFE_CAST(Side_Car AS STRING) AS Side_Car,
+    SAFE_CAST(Fleet_Policy AS STRING) AS Fleet_Policy,
+    SAFE_CAST(Zero_Depreciation AS STRING) AS Zero_Depreciation,
+    SAFE_CAST(Educational_Institution_Bus AS STRING) AS Educational_Institution_Bus,
+    SAFE_CAST(Vintage_Car AS STRING) AS Vintage_Car,
+    SAFE_CAST(Type_of_Fuel AS INT64) AS Type_of_Fuel,
+    SAFE_CAST(Year_of_Registration AS INT64) AS Year_of_Registration,
+    SAFE_CAST(Year_of_Manufacturing AS INT64) AS Year_of_Manufacturing,
+    SAFE_CAST(Running_Year_of_Policy AS INT64) AS Running_Year_of_Policy,
+    SAFE_CAST(HP_tractor AS INT64) AS HP_tractor,
+    SAFE_CAST(CC AS INT64) AS CC,
+    SAFE_CAST(PCC AS INT64) AS PCC,
+    SAFE_CAST(GVW AS INT64) AS GVW,
+    SAFE_CAST(NCB_Amount AS INT64) AS NCB_Amount,
+    SAFE_CAST(NCB_Percentage AS INT64) AS NCB_Percentage,
+    SAFE_CAST(Aadhar_Number AS STRING) AS Aadhar_Number,
+    SAFE_CAST(PAN_Number AS STRING) AS PAN_Number,
+    SAFE_CAST(Reg_Number_Vehicle AS STRING) AS Reg_Number_Vehicle,
+    SAFE_CAST(Chassis_Number AS STRING) AS Chassis_Number,
+    SAFE_CAST(Engine_Number AS STRING) AS Engine_Number,
+    SAFE_CAST(Transaction_ID AS STRING) AS Transaction_ID,
+    SAFE_CAST(Previous_Policy_Number AS STRING) AS Previous_Policy_Number,
+    SAFE_CAST(Elec_OD_Premium AS FLOAT64) AS Elec_OD_Premium,
+    SAFE_CAST(Bifuel_OD_Premium AS FLOAT64) AS Bifuel_OD_Premium,
+    SAFE_CAST(Trailers_OD_Premium AS FLOAT64) AS Trailers_OD_Premium,
+    SAFE_CAST(Trailers_TP_Premium AS FLOAT64) AS Trailers_TP_Premium,
+    SAFE_CAST(Bifuel_TP_Premium AS FLOAT64) AS Bifuel_TP_Premium,
+    SAFE_CAST(Driver_LL_TP_Premium AS FLOAT64) AS Driver_LL_TP_Premium,
+    SAFE_CAST(Cleaner_TP_Premium AS FLOAT64) AS Cleaner_TP_Premium,
+    SAFE_CAST(Coolies_TP_Premium AS FLOAT64) AS Coolies_TP_Premium,
+    SAFE_CAST(Conductor_TP_Premium AS FLOAT64) AS Conductor_TP_Premium,
+    SAFE_CAST(Owner_PA_Premium AS FLOAT64) AS Owner_PA_Premium,
+    SAFE_CAST(Other_PA_Premium AS FLOAT64) AS Other_PA_Premium,
+    SAFE_CAST(Other_TP_Premium AS FLOAT64) AS Other_TP_Premium,
+    SAFE_CAST(Net_TP_Premium AS FLOAT64) AS Net_TP_Premium,
+    SAFE_CAST(Net_ZD_Premium AS FLOAT64) AS Net_ZD_Premium,
+    SAFE_CAST(Voluntary_Excess AS FLOAT64) AS Voluntary_Excess,
+    SAFE_CAST(OD_Policy_End_Date AS DATE) AS OD_Policy_End_Date,
+    SAFE_CAST(TP_Policy_Start_Date AS DATE) AS TP_Policy_Start_Date,
+    SAFE_CAST(TP_Policy_End_Date AS DATE) AS TP_Policy_End_Date,
+    SAFE_CAST(OD_Policy_Start_Date AS DATE) AS OD_Policy_Start_Date,
+    SAFE_CAST(Endorsement_Effective_Date AS DATE) AS Endorsement_Effective_Date,
+    SAFE_CAST(Endorsement_Number AS STRING) AS Endorsement_Number,
+    SAFE_CAST(PA_Ownerdriver_Sum_Insured AS FLOAT64) AS PA_Ownerdriver_Sum_Insured,
+    SAFE_CAST(Policy_Remarks AS STRING) AS Policy_Remarks,
+    SAFE_CAST(Office_Code AS STRING) AS Office_Code,
+    SAFE_CAST(Insurer_LicenseNo AS STRING) AS Insurer_LicenseNo,
+    SAFE_CAST(Class_Code AS STRING) AS Class_Code,
+    SAFE_CAST(CC_PCC_GVW_code AS STRING) AS CC_PCC_GVW_code,
+    SAFE_CAST(Nature_of_Loss_Codes AS STRING) AS Nature_of_Loss_Codes,
+    SAFE_CAST(Road_Type_code AS STRING) AS Road_Type_code,
+    SAFE_CAST(Injury_code AS STRING) AS Injury_code,
+    SAFE_CAST(Occupation_code AS STRING) AS Occupation_code,
+    SAFE_CAST(Summons_Type_code AS STRING) AS Summons_Type_code,
+    SAFE_CAST(Endorsement_Code AS STRING) AS Endorsement_Code,
+    SAFE_CAST(RTA_Code AS STRING) AS RTA_Code,
+    SAFE_CAST(Policy_Code AS STRING) AS Policy_Code,
+    SAFE_CAST(IIB_Make_Code AS STRING) AS IIB_Make_Code,
+    SAFE_CAST(Endt_Type AS STRING) AS Endt_Type,
+    SAFE_CAST(Distribution_Channel_Code AS STRING) AS Distribution_Channel_Code,
+    SAFE_CAST(Net_OD_Premium AS FLOAT64) AS Net_OD_Premium
+    FROM insuretec_Transform_Data.premium_mapping_data
+    GROUP BY
+      Policy_No,
+      Product_Name,
+      Product_Code,
+      Premium,
+      MotorOD_Premium,
+      MotorTP_Premium,
+      Sum_Insured,
+      Policy_Start_Date,
+      Policy_End_Date,
+      Transaction_Date,
+      MainChannel,
+      No_of_Lives,
+      Customer_Pincode,
+      State,
+      Endorsement_Reason,
+      Endorsement_Type,
+      Transaction_Type,
+      Rural_flag,
+      Rural_Social_Flag,
+      DigitalFlag,
+      Month_year,
+      Year,
+      Policy_Count,
+      Rural_Policy_Count,
+      Rural_Premium,
+      Social_Policy_Count,
+      Social_Premium,
+      Digital_Policy_Count,
+      Digital_Policy_Premium,
+      no_of_district,
+      Hospital_Type,
+      `Insurer Name`,
+      `Type of Insurer`,
+      `Insured Type`,
+      Payment_Type,
+      District,
+      Type_of_Business,
+      Policy_status,
+      TPPD_Statutory_Cover_only,
+      AntiTheft,
+      AutoAssociation,
+      Own_Premises,
+      Spl_Design,
+      Side_Car,
+      Fleet_Policy,
+      Zero_Depreciation,
+      Educational_Institution_Bus,
+      Vintage_Car,
+      Type_of_Fuel,
+      Year_of_Registration,
+      Year_of_Manufacturing,
+      Running_Year_of_Policy,
+      HP_tractor,
+      CC,
+      PCC,
+      GVW,
+      NCB_Amount,
+      NCB_Percentage,
+      Aadhar_Number,
+      PAN_Number,
+      Reg_Number_Vehicle,
+      Chassis_Number,
+      Engine_Number,
+      Transaction_ID,
+      Previous_Policy_Number,
+      Elec_OD_Premium,
+      Bifuel_OD_Premium,
+      Trailers_OD_Premium,
+      Trailers_TP_Premium,
+      Bifuel_TP_Premium,
+      Driver_LL_TP_Premium,
+      Cleaner_TP_Premium,
+      Coolies_TP_Premium,
+      Conductor_TP_Premium,
+      Owner_PA_Premium,
+      Other_PA_Premium,
+      Other_TP_Premium,
+      Net_TP_Premium,
+      Net_ZD_Premium,
+      Voluntary_Excess,
+      OD_Policy_End_Date,
+      TP_Policy_Start_Date,
+      TP_Policy_End_Date,
+      OD_Policy_Start_Date,
+      Endorsement_Effective_Date,
+      Endorsement_Number,
+      PA_Ownerdriver_Sum_Insured,
+      Policy_Remarks,
+      Office_Code,
+      Insurer_LicenseNo,
+      Class_Code,
+      CC_PCC_GVW_code,
+      Nature_of_Loss_Codes,
+      Road_Type_code,
+      Injury_code,
+      Occupation_code,
+      Summons_Type_code,
+      Endorsement_Code,
+      RTA_Code,
+      Policy_Code,
+      IIB_Make_Code,
+      Endt_Type,
+      Distribution_Channel_Code,
+      Net_OD_Premium,
+      District_Code;
+  ELSE
+    -- INSERTION DATA PROCESS STATEMENT
+    INSERT INTO insuretec_Transform_Data.Premium_Transformed_Data
+      (Policy_No, Product_Name, Product_Code, Premium, MotorOD_Premium, MotorTP_Premium, Sum_Insured, Policy_Start_Date, Policy_End_Date, Transaction_Date, MainChannel, No_of_Lives, Customer_Pincode, State, Endorsement_Reason, Endorsement_Type, Transaction_Type, Rural_flag, Rural_Social_Flag, DigitalFlag, Month_year, Year, Policy_Count, Rural_Policy_Count, Rural_Premium, Social_Policy_Count, Social_Premium, Digital_Policy_Count, Digital_Policy_Premium, no_of_district, Hospital_Type, `Insurer Name`, `Type of Insurer`, `Insured Type`, Payment_Type, District, Type_of_Business, Policy_status, TPPD_Statutory_Cover_only, AntiTheft, AutoAssociation, Own_Premises, Spl_Design, Side_Car, Fleet_Policy, Zero_Depreciation, Educational_Institution_Bus, Vintage_Car, Type_of_Fuel, Year_of_Registration, Year_of_Manufacturing, Running_Year_of_Policy, HP_tractor, CC, PCC, GVW, NCB_Amount, NCB_Percentage, Aadhar_Number, PAN_Number, Reg_Number_Vehicle, Chassis_Number, Engine_Number, Transaction_ID, Previous_Policy_Number, Elec_OD_Premium, Bifuel_OD_Premium, Trailers_OD_Premium, Trailers_TP_Premium, Bifuel_TP_Premium, Driver_LL_TP_Premium, Cleaner_TP_Premium, Coolies_TP_Premium, Conductor_TP_Premium, Owner_PA_Premium, Other_PA_Premium, Other_TP_Premium, Net_TP_Premium, Net_ZD_Premium, Voluntary_Excess, OD_Policy_End_Date, TP_Policy_Start_Date, TP_Policy_End_Date, OD_Policy_Start_Date, Endorsement_Effective_Date, Endorsement_Number, PA_Ownerdriver_Sum_Insured, Policy_Remarks, Office_Code, Insurer_LicenseNo, Class_Code, CC_PCC_GVW_code, Nature_of_Loss_Codes, Road_Type_code, Injury_code, Occupation_code, Summons_Type_code, Endorsement_Code, RTA_Code, Policy_Code, IIB_Make_Code, Endt_Type, Distribution_Channel_Code, Net_OD_Premium, District_Code)
+ 
+    SELECT
+          SAFE_CAST(Policy_No AS STRING) AS Policy_No,
+    SAFE_CAST(Product_Name AS STRING) AS Product_Name,
+    SAFE_CAST(Product_Code AS STRING) AS Product_Code,
+    SAFE_CAST(Premium AS FLOAT64) AS Premium,
+    SAFE_CAST(MotorOD_Premium AS FLOAT64) AS MotorOD_Premium,
+    SAFE_CAST(MotorTP_Premium AS FLOAT64) AS MotorTP_Premium,
+    SAFE_CAST(Sum_Insured AS FLOAT64) AS Sum_Insured,
+    SAFE_CAST(Policy_Start_Date AS DATE) AS Policy_Start_Date,
+    SAFE_CAST(Policy_End_Date AS DATE) AS Policy_End_Date,
+    SAFE_CAST(Transaction_Date AS DATE) AS Transaction_Date,
+    SAFE_CAST(MainChannel AS STRING) AS MainChannel,
+    SAFE_CAST(No_of_Lives AS INT64) AS No_of_Lives,
+    SAFE_CAST(Customer_Pincode AS INT64) AS Customer_Pincode,
+    SAFE_CAST(State AS STRING) AS State,
+    SAFE_CAST(Endorsement_Reason AS STRING) AS Endorsement_Reason,
+    SAFE_CAST(Endorsement_Type AS STRING) AS Endorsement_Type,
+    SAFE_CAST(Transaction_Type AS STRING) AS Transaction_Type,
+    SAFE_CAST(Rural_flag AS STRING) AS Rural_flag,
+    SAFE_CAST(Rural_Social_Flag AS STRING) AS Rural_Social_Flag,
+    SAFE_CAST(DigitalFlag AS STRING) AS DigitalFlag,
+    SAFE_CAST(Month_year AS STRING) AS Month_year,
+    SAFE_CAST(Year AS INT64) AS Year,
+    SAFE_CAST(Policy_Count AS INT64) AS Policy_Count,
+    SAFE_CAST(Rural_Policy_Count AS INT64) AS Rural_Policy_Count,
+    SAFE_CAST(Rural_Premium AS FLOAT64) AS Rural_Premium,
+    SAFE_CAST(Social_Policy_Count AS INT64) AS Social_Policy_Count,
+    SAFE_CAST(Social_Premium AS FLOAT64) AS Social_Premium,
+    SAFE_CAST(Digital_Policy_Count AS INT64) AS Digital_Policy_Count,
+    SAFE_CAST(Digital_Policy_Premium AS FLOAT64) AS Digital_Policy_Premium,
+    SAFE_CAST(no_of_district AS INT64) AS no_of_district,
+    SAFE_CAST(Hospital_Type AS STRING) AS Hospital_Type,
+    SAFE_CAST(`Insurer Name` AS STRING) AS `Insurer Name`,
+    SAFE_CAST(`Type of Insurer` AS STRING) AS `Type of Insurer`,
+    SAFE_CAST('Insured Type' AS STRING) AS `Insured Type`,
+    SAFE_CAST(Payment_Type AS STRING) AS Payment_Type,
+    SAFE_CAST(District AS STRING) AS District,
+    SAFE_CAST(Type_of_Business AS STRING) AS Type_of_Business,
+    SAFE_CAST(Policy_status AS STRING) AS Policy_status,
+    SAFE_CAST(TPPD_Statutory_Cover_only AS STRING) AS TPPD_Statutory_Cover_only,
+    SAFE_CAST(AntiTheft AS STRING) AS AntiTheft,
+    SAFE_CAST(AutoAssociation AS STRING) AS AutoAssociation,
+    SAFE_CAST(Own_Premises AS STRING) AS Own_Premises,
+    SAFE_CAST(Spl_Design AS STRING) AS Spl_Design,
+    SAFE_CAST(Side_Car AS STRING) AS Side_Car,
+    SAFE_CAST(Fleet_Policy AS STRING) AS Fleet_Policy,
+    SAFE_CAST(Zero_Depreciation AS STRING) AS Zero_Depreciation,
+    SAFE_CAST(Educational_Institution_Bus AS STRING) AS Educational_Institution_Bus,
+    SAFE_CAST(Vintage_Car AS STRING) AS Vintage_Car,
+    SAFE_CAST(Type_of_Fuel AS INT64) AS Type_of_Fuel,
+    SAFE_CAST(Year_of_Registration AS INT64) AS Year_of_Registration,
+    SAFE_CAST(Year_of_Manufacturing AS INT64) AS Year_of_Manufacturing,
+    SAFE_CAST(Running_Year_of_Policy AS INT64) AS Running_Year_of_Policy,
+    SAFE_CAST(HP_tractor AS INT64) AS HP_tractor,
+    SAFE_CAST(CC AS INT64) AS CC,
+    SAFE_CAST(PCC AS INT64) AS PCC,
+    SAFE_CAST(GVW AS INT64) AS GVW,
+    SAFE_CAST(NCB_Amount AS INT64) AS NCB_Amount,
+    SAFE_CAST(NCB_Percentage AS INT64) AS NCB_Percentage,
+    SAFE_CAST(Aadhar_Number AS STRING) AS Aadhar_Number,
+    SAFE_CAST(PAN_Number AS STRING) AS PAN_Number,
+    SAFE_CAST(Reg_Number_Vehicle AS STRING) AS Reg_Number_Vehicle,
+    SAFE_CAST(Chassis_Number AS STRING) AS Chassis_Number,
+    SAFE_CAST(Engine_Number AS STRING) AS Engine_Number,
+    SAFE_CAST(Transaction_ID AS STRING) AS Transaction_ID,
+    SAFE_CAST(Previous_Policy_Number AS STRING) AS Previous_Policy_Number,
+    SAFE_CAST(Elec_OD_Premium AS FLOAT64) AS Elec_OD_Premium,
+    SAFE_CAST(Bifuel_OD_Premium AS FLOAT64) AS Bifuel_OD_Premium,
+    SAFE_CAST(Trailers_OD_Premium AS FLOAT64) AS Trailers_OD_Premium,
+    SAFE_CAST(Trailers_TP_Premium AS FLOAT64) AS Trailers_TP_Premium,
+    SAFE_CAST(Bifuel_TP_Premium AS FLOAT64) AS Bifuel_TP_Premium,
+    SAFE_CAST(Driver_LL_TP_Premium AS FLOAT64) AS Driver_LL_TP_Premium,
+    SAFE_CAST(Cleaner_TP_Premium AS FLOAT64) AS Cleaner_TP_Premium,
+    SAFE_CAST(Coolies_TP_Premium AS FLOAT64) AS Coolies_TP_Premium,
+    SAFE_CAST(Conductor_TP_Premium AS FLOAT64) AS Conductor_TP_Premium,
+    SAFE_CAST(Owner_PA_Premium AS FLOAT64) AS Owner_PA_Premium,
+    SAFE_CAST(Other_PA_Premium AS FLOAT64) AS Other_PA_Premium,
+    SAFE_CAST(Other_TP_Premium AS FLOAT64) AS Other_TP_Premium,
+    SAFE_CAST(Net_TP_Premium AS FLOAT64) AS Net_TP_Premium,
+    SAFE_CAST(Net_ZD_Premium AS FLOAT64) AS Net_ZD_Premium,
+    SAFE_CAST(Voluntary_Excess AS FLOAT64) AS Voluntary_Excess,
+    SAFE_CAST(OD_Policy_End_Date AS DATE) AS OD_Policy_End_Date,
+    SAFE_CAST(TP_Policy_Start_Date AS DATE) AS TP_Policy_Start_Date,
+    SAFE_CAST(TP_Policy_End_Date AS DATE) AS TP_Policy_End_Date,
+    SAFE_CAST(OD_Policy_Start_Date AS DATE) AS OD_Policy_Start_Date,
+    SAFE_CAST(Endorsement_Effective_Date AS DATE) AS Endorsement_Effective_Date,
+    SAFE_CAST(Endorsement_Number AS STRING) AS Endorsement_Number,
+    SAFE_CAST(PA_Ownerdriver_Sum_Insured AS FLOAT64) AS PA_Ownerdriver_Sum_Insured,
+    SAFE_CAST(Policy_Remarks AS STRING) AS Policy_Remarks,
+    SAFE_CAST(Office_Code AS STRING) AS Office_Code,
+    SAFE_CAST(Insurer_LicenseNo AS STRING) AS Insurer_LicenseNo,
+    SAFE_CAST(Class_Code AS STRING) AS Class_Code,
+    SAFE_CAST(CC_PCC_GVW_code AS STRING) AS CC_PCC_GVW_code,
+    SAFE_CAST(Nature_of_Loss_Codes AS STRING) AS Nature_of_Loss_Codes,
+    SAFE_CAST(Road_Type_code AS STRING) AS Road_Type_code,
+    SAFE_CAST(Injury_code AS STRING) AS Injury_code,
+    SAFE_CAST(Occupation_code AS STRING) AS Occupation_code,
+    SAFE_CAST(Summons_Type_code AS STRING) AS Summons_Type_code,
+    SAFE_CAST(Endorsement_Code AS STRING) AS Endorsement_Code,
+    SAFE_CAST(RTA_Code AS STRING) AS RTA_Code,
+    SAFE_CAST(Policy_Code AS STRING) AS Policy_Code,
+    SAFE_CAST(IIB_Make_Code AS STRING) AS IIB_Make_Code,
+    SAFE_CAST(Endt_Type AS STRING) AS Endt_Type,
+    SAFE_CAST(Distribution_Channel_Code AS STRING) AS Distribution_Channel_Code,
+    SAFE_CAST(Net_OD_Premium AS FLOAT64) AS Net_OD_Premium
+ 
+    FROM insuretec_Transform_Data.premium_mapping_data
+ 
+    GROUP BY
+      Policy_No, Product_Name, Product_Code, Premium, MotorOD_Premium, MotorTP_Premium, Sum_Insured, Policy_Start_Date, Policy_End_Date, Transaction_Date, MainChannel, No_of_Lives, Customer_Pincode, State, Endorsement_Reason, Endorsement_Type, Transaction_Type, Rural_flag, Rural_Social_Flag, DigitalFlag, Month_year, Year, Policy_Count, Rural_Policy_Count, Rural_Premium, Social_Policy_Count, Social_Premium, Digital_Policy_Count, Digital_Policy_Premium, no_of_district, Hospital_Type, `Insurer Name`, `Type of Insurer`, `Insured Type`, Payment_Type, District, Type_of_Business, Policy_status, TPPD_Statutory_Cover_only, AntiTheft, AutoAssociation, Own_Premises, Spl_Design, Side_Car, Fleet_Policy, Zero_Depreciation, Educational_Institution_Bus, Vintage_Car, Type_of_Fuel, Year_of_Registration, Year_of_Manufacturing, Running_Year_of_Policy, HP_tractor, CC, PCC, GVW, NCB_Amount, NCB_Percentage, Aadhar_Number, PAN_Number, Reg_Number_Vehicle, Chassis_Number, Engine_Number, Transaction_ID, Previous_Policy_Number, Elec_OD_Premium, Bifuel_OD_Premium, Trailers_OD_Premium, Trailers_TP_Premium, Bifuel_TP_Premium, Driver_LL_TP_Premium, Cleaner_TP_Premium, Coolies_TP_Premium, Conductor_TP_Premium, Owner_PA_Premium, Other_PA_Premium, Other_TP_Premium, Net_TP_Premium, Net_ZD_Premium, Voluntary_Excess, OD_Policy_End_Date, TP_Policy_Start_Date, TP_Policy_End_Date, OD_Policy_Start_Date, Endorsement_Effective_Date, Endorsement_Number, PA_Ownerdriver_Sum_Insured, Policy_Remarks, Office_Code, Insurer_LicenseNo, Class_Code, CC_PCC_GVW_code, Nature_of_Loss_Codes, Road_Type_code, Injury_code, Occupation_code, Summons_Type_code, Endorsement_Code, RTA_Code, Policy_Code, IIB_Make_Code, Endt_Type, Distribution_Channel_Code, Net_OD_Premium, District_Code;
+  END IF;
+ 
+  -- EXECUTE STATEMENT FOR DROPPING MAPPING TABLE IF EXISTS
+  EXECUTE IMMEDIATE CONCAT('DROP TABLE IF EXISTS ', transformed_table_name);
+ 
+  -- -- MASTER DATASET LOGIC TO CREATE MASTER DATASETS:-
+  -- -- 1. IRDAI_LOB_MASTER
+  -- -- 2. IRDAI_CHANNEL_MASTER
+  -- -- 3. IIB_LOB_MASTER
+ 
+  -- -- 1. IRDAI_LOB_MASTER TABLE QUERY
+  -- CREATE OR REPLACE TABLE Demo_Easy_Insurance_Master.irdai_lob_master AS
+  -- SELECT
+  --     DISTINCT
+  --         product_code,
+  --         NULL AS comapany_lob,
+  --         NULL AS irdai_lob
+  -- FROM
+  --     insuretec_Raw_Data.raw_premium;
+ 
+  -- -- 2. IRDAI_CHANNEL_MASTER TABLE QUERY
+  -- CREATE OR REPLACE TABLE Demo_Easy_Insurance_Master.irdai_channel_master AS
+  -- SELECT
+  --     DISTINCT
+  --         mainchannel,
+  --         NULL AS comapany_channel,
+  --         NULL AS irdai_channel
+  -- FROM
+  --     insuretec_Raw_Data.raw_premium;
+ 
+  -- -- 3. IIB_LOB_MASTER TABLE QUERY
+  -- CREATE OR REPLACE TABLE Demo_Easy_Insurance_Master.iib_lob_master AS
+  -- SELECT
+  --     DISTINCT
+  --         product_code,
+  --         NULL AS comapany_lob,
+  --         NULL AS iib_lob
+  -- FROM
+  --     easy_insurance_raw.raw_premium;
+ 
+END;
